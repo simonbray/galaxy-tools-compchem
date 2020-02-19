@@ -12,6 +12,23 @@
                 </when>
                 <when value="String">
                     <param type="text" area="true" name="text" label="String" />
+                    <param type="boolean" name="first" label="Apply to first occurrence of the text or all?" />
+                </when>
+            </conditional>
+        </xml>
+        <xml name="str_or_file">
+            <conditional name="str_or_file">
+                <param type="select" name="str_or_file" label="Insert a string or file?">
+                    <option value="File"/>
+                    <option value="String"/>
+                </param>
+                <when value="File">
+                    <param type="data" name="File" />
+                    <param type="integer" name="line_start" value="" label="Starting line"/>
+                    <param type="integer" name="line_end" value="" label="Ending line"/>
+                </when>
+                <when value="String">
+                    <param type="text" area="true" name="text" label="String" />
                 </when>
             </conditional>
         </xml>
@@ -21,7 +38,7 @@
     </requirements>
 
     <command detect_errors="exit_code"><![CDATA[
-        head $__tool_directory__/index.html -n 20; echo $input; tail $__tool_directory__/index.html -n 9 > $output
+
     ]]></command>
     <inputs>
 	    <!-- <display>$data</display> -->
@@ -36,15 +53,15 @@
                 </param>
                 <when value="insert">
                     <expand macro="step_params" />
+                    <expand macro="str_or_file" />
                 </when>
                 <when value="replace">
                     <expand macro="step_params" />
-                    <param type="data,text" name="File" />
+                    <expand macro="str_or_file" />
                 </when>
                 <when value="delete">
                     <expand macro="step_params" />
                 </when>
-
             </conditional>
         </repeat>
         
