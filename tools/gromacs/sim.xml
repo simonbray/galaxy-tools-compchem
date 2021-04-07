@@ -2,7 +2,7 @@
     <description>for system equilibration or data collection</description>
     <macros>
         <import>macros.xml</import>
-        <token name="@GALAXY_VERSION@">0</token>
+        <token name="@GALAXY_VERSION@">1</token>
     </macros>
     <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
@@ -43,16 +43,18 @@
             -p ./top_input.top 
             -o outp.tpr &>> verbose.txt &&
 
-        #if "\${GPU_AVAILABLE:-0}" == 1:
+        if [ "\${GPU_AVAILABLE:-0}" -eq 1 ] ; then
             gmx_gpu mdrun
                 -ntmpi 1
                 -nb gpu
                 -pme gpu
-        #else:
+                -nt "\${GALAXY_SLOTS:-4}"
+                -deffnm outp &>> verbose.txt;
+        else
             gmx mdrun
-        #end if
-            -nt "\${GALAXY_SLOTS:-4}"
-            -deffnm outp &>> verbose.txt
+                -nt "\${GALAXY_SLOTS:-4}"
+                -deffnm outp &>> verbose.txt;
+        fi
 
         #if $outps.str == 'pdb' or $outps.str == 'both'
             && gmx editconf -f outp.gro -o outp.pdb &>> verbose.txt
@@ -298,7 +300,6 @@
                 </assert_contents>
             </output>
         </test>
-
         <test expect_num_outputs="3">
             <param name="gro_input" value="str_ions.gro" />
             <param name="top_input" value="topol_solv.top" />
